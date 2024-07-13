@@ -22,9 +22,14 @@ cd ~/$BACKUP_DIR_REPO
 REPOS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "https://api.github.com/user/repos?per_page=100" | jq -r '.[].ssh_url')
 
 for REPO in $REPOS; do
-
- git clone $REPO
-
+  REPO_NAME=$(basename $REPO .git)
+  if [ -d "$REPO_NAME" ]; then
+    cd $REPO_NAME
+    git pull
+    cd ..
+  else
+    git clone $REPO
+  fi
 done
 
 
@@ -34,7 +39,7 @@ cd ~/$BACKUP_DIR_PC
 
 HOME_PATH="/home/*/"
 
-rsync -av --exclude='.*' --exclude='*.log' --exclude='*.tmp' --exclude='Modelos/' \
+rsync -uvac --exclude='.*' --exclude='*.log' --exclude='*.tmp' --exclude='Modelos/' \
           --exclude='Sync/' --exclude='Público/' --exclude='Música/' --exclude='Área de Trabalho/' --exclude='Backups_repo_pc/' $HOME_PATH ~/$BACKUP_DIR_PC
 
 echo "
@@ -47,4 +52,4 @@ echo "
 
 echo "Seus arquivos foram salvos no diretório ~/Backups_repo_pc"
 
-# Beta 0.0.1
+# Beta 0.0.2
